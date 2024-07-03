@@ -57,6 +57,20 @@ public:
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
+    //--ALIASES--
+
+    // float filter alias
+    // filter types in IIR use 12 db/Oct cutoff for lowpass / highpass by default
+    using Filter = juce::dsp::IIR::Filter<float>;
+
+    // chained float filters
+    // 1 - 4 filters, results in 12 - 48 db/Oct cutoff for lowpass / highpass
+    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+    // declare 2 mono chains to represent full stereo signal
+    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    MonoChain leftChain, rightChain;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQtutAudioProcessor)
 };
