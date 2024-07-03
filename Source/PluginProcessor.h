@@ -114,7 +114,7 @@ private:
     template<int Index, typename ChainType, typename CoefficientType>
     void updateFilter(ChainType& chain, const CoefficientType& coefficients)
     {
-        updateCoefficients(chain.teamplate get<Index>().coefficients, coefficients[Index]);
+        updateCoefficients(chain.template get<Index>().coefficients, coefficients[Index]);
         chain.template setBypassed<Index>(false);
     }
 
