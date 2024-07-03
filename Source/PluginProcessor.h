@@ -111,6 +111,32 @@ private:
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter(ChainType& filter, const CoefficientType& coefficients, const Slope& slope)
+    {
+        filter.template setBypassed<0>(true);
+        filter.template setBypassed<1>(true);
+        filter.template setBypassed<2>(true);
+        filter.template setBypassed<3>(true);
+
+        if (slope >= Slope_12) {
+            *filter.template get<0>().coefficients = *coefficients[0];
+            filter.template setBypassed<0>(false);
+        }
+        if (slope >= Slope_24) {
+            *filter.template get<1>().coefficients = *coefficients[1];
+            filter.template setBypassed<1>(false);
+        }
+        if (slope >= Slope_36) {
+            *filter.template get<2>().coefficients = *coefficients[2];
+            filter.template setBypassed<2>(false);
+        }
+        if (slope >= Slope_48) {
+            *filter.template get<3>().coefficients = *coefficients[3];
+            filter.template setBypassed<3>(false);
+        }
+    }
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQtutAudioProcessor)
 };
