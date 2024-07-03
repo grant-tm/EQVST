@@ -111,6 +111,13 @@ private:
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
+    template<int Index, typename ChainType, typename CoefficientType>
+    void updateFilter(ChainType& chain, const CoefficientType& coefficients)
+    {
+        updateCoefficients(chain.teamplate get<Index>().coefficients, coefficients[Index]);
+        chain.template setBypassed<Index>(false);
+    }
+
     template<typename ChainType, typename CoefficientType>
     void updateCutFilter(ChainType& filter, const CoefficientType& coefficients, const Slope& slope)
     {
@@ -120,20 +127,16 @@ private:
         filter.template setBypassed<3>(true);
 
         if (slope >= Slope_12) {
-            *filter.template get<0>().coefficients = *coefficients[0];
-            filter.template setBypassed<0>(false);
+            updateFilter<0>(filter, coefficients);
         }
         if (slope >= Slope_24) {
-            *filter.template get<1>().coefficients = *coefficients[1];
-            filter.template setBypassed<1>(false);
+            updateFilter<1>(filter, coefficients);
         }
         if (slope >= Slope_36) {
-            *filter.template get<2>().coefficients = *coefficients[2];
-            filter.template setBypassed<2>(false);
+            updateFilter<2>(filter, coefficients);
         }
         if (slope >= Slope_48) {
-            *filter.template get<3>().coefficients = *coefficients[3];
-            filter.template setBypassed<3>(false);
+            updateFilter<3>(filter, coefficients);
         }
     }
 
