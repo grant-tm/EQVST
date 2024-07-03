@@ -10,6 +10,26 @@
 
 #include <JuceHeader.h>
 
+// contains parameters for peak, low cut, and high cut filters
+struct ChainSettings
+{
+    // peak parameters
+    float peakFreq{ 0 };
+    float peakGainDB{ 0 };
+    float peakQ{ 1.f };
+
+    // low cut parameters
+    float lowCutFreq{ 0 };
+    int lowCutSlope{ 0 };
+
+    // high cut parameters
+    float highCutFreq{ 0 };
+    int highCutSlope{ 0 };
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+
 //==============================================================================
 /**
 */
@@ -57,7 +77,6 @@ public:
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
-    //--ALIASES--
 
     // float filter alias
     // filter types in IIR use 12 db/Oct cutoff for lowpass / highpass by default
@@ -71,6 +90,13 @@ private:
     using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
     MonoChain leftChain, rightChain;
     
+    enum ChainPositions
+    {
+        LowCut,
+        Peak,
+        HighCut
+    };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQtutAudioProcessor)
 };
