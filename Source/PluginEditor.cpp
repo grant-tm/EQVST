@@ -56,7 +56,7 @@ void LookAndFeel::drawRotarySlider(
 
         r.setSize(strWidth + 4, knob->getTextHeight() + 2);
         r.setCentre(bounds.getCentre());
-        g.setColour(Colour(0xFF000000));
+        g.setColour(Colour(0xFF181818));
         g.fillRect(r);
 
         g.setColour(Colour(0xFFFFFFFF));
@@ -77,10 +77,11 @@ void Knob::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderBounds();
 
-    g.setColour(Colours::red);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::yellow);
-    g.drawRect(sliderBounds);
+    // DEBUG: show knob bounding boxes
+    //g.setColour(Colours::red);
+    //g.drawRect(getLocalBounds());
+    //g.setColour(Colours::yellow);
+    //g.drawRect(sliderBounds);
 
     getLookAndFeel().drawRotarySlider(
         g,
@@ -109,7 +110,41 @@ juce::Rectangle<int> Knob::getSliderBounds() const
 
 juce::String Knob::getDisplayString() const
 {
-    return juce::String(getValue());
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+    {
+        return choiceParam->getCurrentChoiceName();
+    }
+    
+    juce::String str;
+    bool addK = false;
+
+    if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
+    {
+        float val = getValue();
+        
+        if (val >= 1000.f)
+        {
+            val /= 1000.f;
+            addK = true;
+        }
+
+        str = juce::String(val, (addK ? 2 : 0));
+    }
+    else
+    {
+        jassertfalse;
+    }
+
+    if (suffix.isNotEmpty())
+    {
+        str << " ";
+        if (addK)
+        { 
+            str << "k";
+        }
+        str << suffix;
+    }
+    return str;
 }
 
 //==============================================================================
