@@ -183,6 +183,8 @@ ResponseCurveComponent::ResponseCurveComponent(EQtutAudioProcessor& p) : audioPr
         param->addListener(this);
     }
 
+    updateChain();
+
     startTimerHz(60);
 }
 
@@ -193,6 +195,19 @@ ResponseCurveComponent::~ResponseCurveComponent()
     {
         param->removeListener(this);
     }
+}
+
+void ResponseCurveComponent::updateChain()
+{
+    auto chainSettings = getChainSettings(audioProcessor.apvts);
+    auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+
+    auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+
+    auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
 }
 
 void ResponseCurveComponent::paint(juce::Graphics& g)
@@ -275,16 +290,8 @@ void ResponseCurveComponent::timerCallback()
 {
     if (parametersChanged.compareAndSetBool(false, true))
     {
-        // update the mono chain
-        auto chainSettings = getChainSettings(audioProcessor.apvts);
-        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
-        updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-
-        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
-        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
-
-        auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
-        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+        // update mono chain
+        updateChain();
 
         // signal a repaint
         repaint();
@@ -347,7 +354,7 @@ EQtutAudioProcessorEditor::EQtutAudioProcessorEditor(EQtutAudioProcessor& p)
         addAndMakeVisible(knob);
     }
 
-    setSize (600, 400);
+    setSize (600, 488);
 }
 
 EQtutAudioProcessorEditor::~EQtutAudioProcessorEditor()
@@ -372,9 +379,10 @@ void EQtutAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     auto bounds = getLocalBounds();
-    
-    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33f);
     responseCurveComponent.setBounds(responseArea);
+
+    bounds.removeFromTop(5);
 
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     lowCutFreqKnob.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
