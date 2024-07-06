@@ -326,19 +326,19 @@ EQtutAudioProcessorEditor::EQtutAudioProcessorEditor(EQtutAudioProcessor& p)
     peakFreqKnob.labels.add( {0.f, "20 Hz"} );
     peakFreqKnob.labels.add( {1.f, "20 kHz"} );
     peakGainKnob.labels.add({ 0.f, "-24 dB" });
-    peakGainKnob.labels.add({ 1.f, "24 dB" });
+    peakGainKnob.labels.add({ 1.f, "+24 dB" });
     peakQualityKnob.labels.add({ 0.f, "0.1" });
-    peakQualityKnob.labels.add({ 1.f, "10" });
+    peakQualityKnob.labels.add({ 1.f, "10.0" });
 
     lowCutFreqKnob.labels.add({ 0.f, "20 Hz" });
     lowCutFreqKnob.labels.add({ 1.f, "20 kHz" });
-    lowCutSlopeKnob.labels.add({ 0.f, "12 dB/Oct" });
-    lowCutSlopeKnob.labels.add({ 1.f, "48 dB/Oct" });
+    lowCutSlopeKnob.labels.add({ 0.f, "12" });
+    lowCutSlopeKnob.labels.add({ 1.f, "48" });
 
     highCutFreqKnob.labels.add({ 0.f, "20 Hz" });
     highCutFreqKnob.labels.add({ 1.f, "20 kHz" });
-    highCutSlopeKnob.labels.add({ 0.f, "12 dB/Oct" });
-    highCutSlopeKnob.labels.add({ 1.f, "48 dB/Oct" });
+    highCutSlopeKnob.labels.add({ 0.f, "12" });
+    highCutSlopeKnob.labels.add({ 1.f, "48" });
 
 
     
