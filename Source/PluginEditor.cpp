@@ -11,7 +11,14 @@
 
 //==============================================================================
 EQtutAudioProcessorEditor::EQtutAudioProcessorEditor (EQtutAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p),
+    peakFreqKnobAtch    (audioProcessor.apvts, "Peak Freq",     peakFreqKnob),
+    peakGainKnobAtch    (audioProcessor.apvts, "Peak Gain",     peakGainKnob),
+    peakQualityKnobAtch (audioProcessor.apvts, "Peak Q",        peakQualityKnob),
+    lowCutFreqKnobAtch  (audioProcessor.apvts, "LowCut Freq",   lowCutFreqKnob),
+    lowCutSlopeKnobAtch (audioProcessor.apvts, "LowCut Slope",  lowCutSlopeKnob),
+    highCutFreqKnobAtch (audioProcessor.apvts, "HighCut Freq",  highCutFreqKnob),
+    highCutSlopeKnobAtch(audioProcessor.apvts, "HighCut Slope", highCutSlopeKnob)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.

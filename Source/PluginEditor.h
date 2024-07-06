@@ -37,14 +37,22 @@ private:
     // access the processor object that created it.
     EQtutAudioProcessor& audioProcessor;
 
-    // peak knobs
+    // --- DECLARE KNOBS ---
+
     Knob peakFreqKnob, peakGainKnob, peakQualityKnob;
-    
-    // low cut knobs
     Knob lowCutFreqKnob, lowCutSlopeKnob;
-    
-    // high cut knobs
     Knob highCutFreqKnob, highCutSlopeKnob;
+
+    // --- CREATE ATTACHMENTS ---
+
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using Attachment = APVTS::SliderAttachment;
+
+    Attachment peakFreqKnobAtch, peakGainKnobAtch, peakQualityKnobAtch;
+    Attachment lowCutFreqKnobAtch, lowCutSlopeKnobAtch;
+    Attachment highCutFreqKnobAtch, highCutSlopeKnobAtch;
+
+
 
     std::vector<juce::Component*> getKnobs();
 
