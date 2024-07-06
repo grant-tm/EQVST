@@ -188,12 +188,20 @@ void EQtutAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    juce::MemoryOutputStream stateOutputStream(destData, true);
+    apvts.state.writeToStream(stateOutputStream);
 }
 
 void EQtutAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if (tree.isValid())
+    {
+        apvts.replaceState(tree);
+        updateFilters();
+    }
 }
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
@@ -285,7 +293,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout
     auto highFreqRange = juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f);
     layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq", "HighCut Freq", highFreqRange, 20000.f));
 
-    //--- PEAK FREQ, GAIN, Q SELECTORS ---
+    //--- PEAK FREQ, GAIN, Q SELECTOR ---
 
     // peak frequency slider
     auto peakFreqRange = juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.3f);
