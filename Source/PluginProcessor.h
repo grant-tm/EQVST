@@ -45,6 +45,11 @@ enum ChainPositions
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+using Coefficients = Filter::CoefficientsPtr;
+void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate);
+
 // float filter alias
    // filter types in IIR use 12 db/Oct cutoff for lowpass / highpass by default
 using Filter = juce::dsp::IIR::Filter<float>;
@@ -108,9 +113,6 @@ private:
     MonoChain leftChain, rightChain;
 
     void updatePeakFilter(const ChainSettings& chainSettings);
-
-    using Coefficients = Filter::CoefficientsPtr;
-    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
     template<int Index, typename ChainType, typename CoefficientType>
     void updateFilter(ChainType& chain, const CoefficientType& coefficients)
