@@ -178,8 +178,8 @@ bool EQtutAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* EQtutAudioProcessor::createEditor()
 {
-    //return new EQtutAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new EQtutAudioProcessorEditor (*this);
+    //return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
