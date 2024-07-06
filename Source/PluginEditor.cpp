@@ -9,6 +9,75 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void LookAndFeel::drawRotarySlider(
+    juce::Graphics& g,
+    int x, int y, int width, int height,
+    float sliderPosProportional,
+    float rotaryStartAngle,
+    float rotaryEndAngle,
+    juce::Slider& slider)
+{
+    using namespace juce;
+
+    auto bounds = Rectangle<float>(x, y, width, height);
+
+    // draw knob background
+    g.setColour(Colour(0xFF181818));
+    g.fillEllipse(bounds);
+
+    // draw knob border
+    g.setColour(Colour(0xFF202020));
+    g.drawEllipse(bounds, 2.f);
+
+    // draw knob position notch
+    jassert(rotaryStartAngle < rotaryEngAngle);
+    auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
+    
+    auto center = bounds.getCentre();
+    Rectangle<float> r;
+    r.setLeft(center.getX() - 2);
+    r.setRight(center.getX() + 2);
+    r.setTop(bounds.getY());
+    r.setBottom(center.getY());
+    
+    Path p;
+    p.addRectangle(r);
+    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+    
+    g.setColour(Colour(0xFFFFFFFF));
+    g.fillPath(p);
+
+}
+
+//==============================================================================
+
+void Knob::paint(juce::Graphics& g)
+{
+    using namespace juce;
+
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+
+    auto range = getRange();
+
+    auto sliderBounds = getSliderBounds();
+
+    getLookAndFeel().drawRotarySlider(
+        g,
+        sliderBounds.getX(), sliderBounds.getY(), sliderBounds.getWidth(), sliderBounds.getHeight(),
+        jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+        startAng, endAng,
+        *this
+    );
+}
+
+juce::Rectangle<int> Knob::getSliderBounds() const
+{
+    return getLocalBounds();
+}
+
+//==============================================================================
+
 ResponseCurveComponent::ResponseCurveComponent(EQtutAudioProcessor& p) : audioProcessor(p)
 {
     const auto& params = audioProcessor.getParameters();
@@ -35,7 +104,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(0xFF101010));
 
     auto responseArea = getLocalBounds();
     auto w = responseArea.getWidth();
@@ -94,9 +163,9 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
 
-    g.setColour(Colours::orange);
-    g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
-    g.setColour(Colours::white);
+    g.setColour(Colour(0xFF181818));
+    g.drawRoundedRectangle(responseArea.toFloat(), 1.0f, 4.f);
+    g.setColour(Colour(0xFFFFFFFF));
     g.strokePath(responseCurve, PathStrokeType(2.f));
 }
 
@@ -176,7 +245,7 @@ void EQtutAudioProcessorEditor::paint(juce::Graphics& g)
 
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.fillAll(Colours::black);
+    g.fillAll(Colour(0xFF101010));
     
 }
 
