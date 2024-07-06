@@ -126,14 +126,31 @@ void ResponseCurveComponent::timerCallback()
 }
 
 //==============================================================================
-EQtutAudioProcessorEditor::EQtutAudioProcessorEditor (EQtutAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
+EQtutAudioProcessorEditor::EQtutAudioProcessorEditor(EQtutAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    
+    // init labelled knobs
+    peakFreqKnob    (*audioProcessor.apvts.getParameter("Peak Freq"), "Hz"),
+    peakGainKnob    (*audioProcessor.apvts.getParameter("Peak Gain"), "dB"),
+    peakQualityKnob (*audioProcessor.apvts.getParameter("Peak Q"),    ""),
+
+    lowCutFreqKnob  (*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"),
+    lowCutSlopeKnob (*audioProcessor.apvts.getParameter("LowCut Slope"), "dB/Oct"),
+
+    highCutFreqKnob (*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"),
+    highCutSlopeKnob(*audioProcessor.apvts.getParameter("HighCut Slope"), "dB/Oct"),
+
+    // init response curve
     responseCurveComponent  (audioProcessor),
+    
+    // init knob attachments
     peakFreqKnobAtch    (audioProcessor.apvts, "Peak Freq",     peakFreqKnob),
     peakGainKnobAtch    (audioProcessor.apvts, "Peak Gain",     peakGainKnob),
     peakQualityKnobAtch (audioProcessor.apvts, "Peak Q",        peakQualityKnob),
+    
     lowCutFreqKnobAtch  (audioProcessor.apvts, "LowCut Freq",   lowCutFreqKnob),
     lowCutSlopeKnobAtch (audioProcessor.apvts, "LowCut Slope",  lowCutSlopeKnob),
+    
     highCutFreqKnobAtch (audioProcessor.apvts, "HighCut Freq",  highCutFreqKnob),
     highCutSlopeKnobAtch(audioProcessor.apvts, "HighCut Slope", highCutSlopeKnob)
 {
