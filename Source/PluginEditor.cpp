@@ -15,7 +15,12 @@ EQtutAudioProcessorEditor::EQtutAudioProcessorEditor (EQtutAudioProcessor& p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    for (auto* knob : getKnobs())
+    {
+        addAndMakeVisible(knob);
+    }
+    
+    setSize (600, 400);
 }
 
 EQtutAudioProcessorEditor::~EQtutAudioProcessorEditor()
@@ -37,4 +42,36 @@ void EQtutAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+
+    auto bounds = getLocalBounds();
+    
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    
+    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    lowCutFreqKnob.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
+    lowCutSlopeKnob.setBounds(lowCutArea);
+
+    auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
+    highCutFreqKnob.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
+    highCutSlopeKnob.setBounds(highCutArea);
+    
+    peakFreqKnob.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
+    peakGainKnob.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
+    peakQualityKnob.setBounds(bounds);
+}
+
+std::vector<juce::Component*> EQtutAudioProcessorEditor::getKnobs()
+{
+    return
+    {
+        &peakFreqKnob,
+        &peakGainKnob,
+        &peakQualityKnob,
+        
+        &lowCutFreqKnob,
+        &lowCutSlopeKnob,
+        
+        &highCutFreqKnob,
+        &highCutSlopeKnob
+    };
 }
