@@ -29,24 +29,39 @@ void LookAndFeel::drawRotarySlider(
     g.setColour(Colour(0xFF202020));
     g.drawEllipse(bounds, 2.f);
 
-    // draw knob position notch
-    jassert(rotaryStartAngle < rotaryEngAngle);
-    auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
-    
-    auto center = bounds.getCentre();
-    Rectangle<float> r;
-    r.setLeft(center.getX() - 2);
-    r.setRight(center.getX() + 2);
-    r.setTop(bounds.getY());
-    r.setBottom(center.getY());
-    
-    Path p;
-    p.addRectangle(r);
-    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
-    
-    g.setColour(Colour(0xFFFFFFFF));
-    g.fillPath(p);
+    if (auto* knob = dynamic_cast<Knob*>(&slider))
+    {
+        // draw knob position notch
+        jassert(rotaryStartAngle < rotaryEngAngle);
+        auto sliderAngRad = jmap(sliderPosProportional, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
 
+        auto center = bounds.getCentre();
+        Rectangle<float> r;
+        r.setLeft(center.getX() - 2);
+        r.setRight(center.getX() + 2);
+        r.setTop(bounds.getY());
+        r.setBottom(center.getY() - knob->getTextHeight() * 1.5);
+
+        Path p;
+        p.addRoundedRectangle(r, 2.f);
+        p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+
+        g.setColour(Colour(0xFFFFFFFF));
+        g.fillPath(p);
+
+        // draw label
+        g.setFont(knob->getTextHeight());
+        auto text = knob->getDisplayString();
+        auto strWidth = g.getCurrentFont().getStringWidth(text);
+
+        r.setSize(strWidth + 4, knob->getTextHeight() + 2);
+        r.setCentre(bounds.getCentre());
+        g.setColour(Colour(0xFF000000));
+        g.fillRect(r);
+
+        g.setColour(Colour(0xFFFFFFFF));
+        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
+    }
 }
 
 //==============================================================================
@@ -90,6 +105,11 @@ juce::Rectangle<int> Knob::getSliderBounds() const
     r.setY(2); // two pixels below top of component
 
     return r;
+}
+
+juce::String Knob::getDisplayString() const
+{
+    return juce::String(getValue());
 }
 
 //==============================================================================
