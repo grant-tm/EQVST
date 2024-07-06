@@ -19,12 +19,31 @@ struct Knob : juce::Slider
     ){}
 };
 
+struct ResponseCurveComponent : juce::Component,
+    juce::AudioProcessorParameter::Listener,
+    juce::Timer
+{
+public:
+    ResponseCurveComponent(EQtutAudioProcessor&);
+    ~ResponseCurveComponent();
+
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override { };
+   
+    void timerCallback() override;
+
+    void paint(juce::Graphics& g) override;
+
+private:
+    EQtutAudioProcessor& audioProcessor;
+    juce::Atomic<bool> parametersChanged{ false };
+    MonoChain monoChain;
+};
+
 //==============================================================================
 /**
 */
-class EQtutAudioProcessorEditor  : public juce::AudioProcessorEditor,
-    juce::AudioProcessorParameter::Listener,
-    juce::Timer
+class EQtutAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     EQtutAudioProcessorEditor (EQtutAudioProcessor&);
@@ -34,17 +53,10 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    void parameterValueChanged(int parameterIndex, float newValue) override;
-    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override { };
-
-    void timerCallback() override;
-
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     EQtutAudioProcessor& audioProcessor;
-
-    juce::Atomic<bool> parametersChanged{ false };
 
     // --- DECLARE KNOBS ---
 
@@ -52,8 +64,10 @@ private:
     Knob lowCutFreqKnob, lowCutSlopeKnob;
     Knob highCutFreqKnob, highCutSlopeKnob;
 
-    // --- CREATE ATTACHMENTS ---
+    // --- CREATE RESPONSE CURVE ---
+    ResponseCurveComponent responseCurveComponent;
 
+    // --- CREATE ATTACHMENTS ---
     using APVTS = juce::AudioProcessorValueTreeState;
     using Attachment = APVTS::SliderAttachment;
 
@@ -62,8 +76,6 @@ private:
     Attachment highCutFreqKnobAtch, highCutSlopeKnobAtch;
 
     std::vector<juce::Component*> getKnobs();
-
-    MonoChain monoChain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQtutAudioProcessorEditor)
 };
