@@ -36,7 +36,25 @@ struct ChainSettings
     Slope highCutSlope{ Slope::Slope_12 };
 };
 
+enum ChainPositions
+{
+    LowCut,
+    Peak,
+    HighCut
+};
+
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+// float filter alias
+   // filter types in IIR use 12 db/Oct cutoff for lowpass / highpass by default
+using Filter = juce::dsp::IIR::Filter<float>;
+
+// chained float filters
+// 1 - 4 filters, results in 12 - 48 db/Oct cutoff for lowpass / highpass
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+// declare 2 mono chains to represent full stereo signal
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
 
 
 //==============================================================================
@@ -87,24 +105,7 @@ public:
 
 private:
 
-    // float filter alias
-    // filter types in IIR use 12 db/Oct cutoff for lowpass / highpass by default
-    using Filter = juce::dsp::IIR::Filter<float>;
-
-    // chained float filters
-    // 1 - 4 filters, results in 12 - 48 db/Oct cutoff for lowpass / highpass
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-
-    // declare 2 mono chains to represent full stereo signal
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
     MonoChain leftChain, rightChain;
-    
-    enum ChainPositions
-    {
-        LowCut,
-        Peak,
-        HighCut
-    };
 
     void updatePeakFilter(const ChainSettings& chainSettings);
 

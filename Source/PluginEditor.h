@@ -52,9 +52,9 @@ private:
     Attachment lowCutFreqKnobAtch, lowCutSlopeKnobAtch;
     Attachment highCutFreqKnobAtch, highCutSlopeKnobAtch;
 
-
-
     std::vector<juce::Component*> getKnobs();
+
+    MonoChain monoChain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EQtutAudioProcessorEditor)
 };
