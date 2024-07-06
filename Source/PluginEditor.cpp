@@ -91,6 +91,32 @@ void Knob::paint(juce::Graphics& g)
         *this
     );
 
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.getWidth() * 0.5f;
+
+
+    // draw labels
+    g.setColour(Colour(0xFFFFFFFF));
+    g.setFont(getTextHeight());
+
+    auto numChoices = labels.size();
+    for (int i = 0; i < numChoices; ++i)
+    {
+        auto pos = labels[i].pos;
+        jassert(0.f <= pos);
+        jassert(1.f >= pos);
+
+        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
+
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, ang);
+        
+        Rectangle<float> r;
+        auto str = labels[i].label;
+        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setCentre(c);
+        r.setY(r.getY() + getTextHeight());
+        g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
+    }
 
 }
 
@@ -296,6 +322,26 @@ EQtutAudioProcessorEditor::EQtutAudioProcessorEditor(EQtutAudioProcessor& p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    
+    peakFreqKnob.labels.add( {0.f, "20 Hz"} );
+    peakFreqKnob.labels.add( {1.f, "20 kHz"} );
+    peakGainKnob.labels.add({ 0.f, "-24 dB" });
+    peakGainKnob.labels.add({ 1.f, "24 dB" });
+    peakQualityKnob.labels.add({ 0.f, "0.1" });
+    peakQualityKnob.labels.add({ 1.f, "10" });
+
+    lowCutFreqKnob.labels.add({ 0.f, "20 Hz" });
+    lowCutFreqKnob.labels.add({ 1.f, "20 kHz" });
+    lowCutSlopeKnob.labels.add({ 0.f, "12 dB/Oct" });
+    lowCutSlopeKnob.labels.add({ 1.f, "48 dB/Oct" });
+
+    highCutFreqKnob.labels.add({ 0.f, "20 Hz" });
+    highCutFreqKnob.labels.add({ 1.f, "20 kHz" });
+    highCutSlopeKnob.labels.add({ 0.f, "12 dB/Oct" });
+    highCutSlopeKnob.labels.add({ 1.f, "48 dB/Oct" });
+
+
+    
     for (auto* knob : getKnobs())
     {
         addAndMakeVisible(knob);

@@ -39,6 +39,14 @@ struct Knob : juce::Slider
         setLookAndFeel(nullptr);
     }
 
+    struct labelPos
+    {
+        float pos;
+        juce::String label;
+    };
+
+    juce::Array<labelPos> labels;
+
     void paint(juce::Graphics& g) override;
     
     juce::Rectangle<int> getSliderBounds() const;
