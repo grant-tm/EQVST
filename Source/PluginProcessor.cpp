@@ -221,7 +221,7 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     return settings;
 }
 
-Coefficients makePeakFilter(ChainSettings& chainSettings, double sampleRate)
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate)
 {
     return juce::dsp::IIR::Coefficients<float>::makePeakFilter(
         sampleRate,
