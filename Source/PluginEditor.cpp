@@ -1,13 +1,9 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+
+//=============================================================================
+// Knob Look And Feel
+//=============================================================================
 
 void LookAndFeel::drawRotarySlider(
     juce::Graphics& g,
@@ -15,8 +11,8 @@ void LookAndFeel::drawRotarySlider(
     float sliderPosProportional,
     float rotaryStartAngle,
     float rotaryEndAngle,
-    juce::Slider& slider)
-{
+    juce::Slider& slider
+) {
     using namespace juce;
 
     auto bounds = Rectangle<float>(x, y, width, height);
@@ -64,7 +60,9 @@ void LookAndFeel::drawRotarySlider(
     }
 }
 
-//==============================================================================
+//=============================================================================
+// Knob
+//=============================================================================
 
 void Knob::paint(juce::Graphics& g)
 {
@@ -173,7 +171,9 @@ juce::String Knob::getDisplayString() const
     return str;
 }
 
-//==============================================================================
+//=============================================================================
+// Response Curve
+//=============================================================================
 
 ResponseCurveComponent::ResponseCurveComponent(EQtutAudioProcessor& p) : audioProcessor(p)
 {
@@ -197,25 +197,10 @@ ResponseCurveComponent::~ResponseCurveComponent()
     }
 }
 
-void ResponseCurveComponent::updateChain()
-{
-    auto chainSettings = getChainSettings(audioProcessor.apvts);
-    auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
-    updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
-
-    auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
-    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
-
-    auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
-    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
-}
-
 void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
 
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     g.fillAll(Colour(0xFF101010));
 
     g.drawImage(background, getLocalBounds().toFloat());
@@ -296,7 +281,8 @@ void ResponseCurveComponent::resized()
     auto bottom = renderArea.getBottom();
     auto width = renderArea.getWidth();
 
-    // -- mark frequencies on x axis --
+    // -- DRAW FREQUENCY GRIDLINES --
+
     Array<float> gridXLines { 
         20, 30, 40, 50, 60, 70, 80, 90,
         100, 200, 300, 400, 500, 600, 700, 800, 900,
@@ -317,15 +303,17 @@ void ResponseCurveComponent::resized()
         g.drawVerticalLine(x, top, bottom);
     }
 
-    // -- mark gain on y axis --
+    // -- DRAW GAIN GRIDLINES --
+
     Array<float> gridYLines { -24, -12, 0, 12, 24 };
     for (auto y : gridYLines)
     {
         auto mapY = jmap(y, -24.f, 24.f, float(bottom), float(top));
         g.setColour(y == 0.f ? Colour(0u, 180u, 0u) : Colours::darkgrey);
-
         g.drawHorizontalLine(mapY, left, right);
     }
+
+    // -- DRAW FREQUENCY LABELS --
 
     g.setColour(Colours::lightgrey);
     const int fontHeight = 10;
@@ -353,6 +341,50 @@ void ResponseCurveComponent::resized()
 
         g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
+
+    // -- DRAW GAIN LABELS --
+
+    for (auto y : gridYLines)
+    {
+        auto mapY = jmap(y, -24.f, 24.f, float(bottom), float(top));
+
+        String str;
+        if (y > 0)
+            str << "+";
+        str << y;
+
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+
+        Rectangle<int> r;
+        r.setSize(textWidth, fontHeight);
+        r.setX(getWidth() - textWidth);
+        r.setCentre(r.getCentreX(), mapY);
+
+        g.setColour(mapY == 0.f ? Colour(0u, 180u, 0u) : Colours::lightgrey);
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+
+        str.clear();
+        str << (y - 24.f);
+
+        r.setX(1);
+        textWidth = g.getCurrentFont().getStringWidth(str);
+        r.setSize(textWidth, fontHeight);
+        g.setColour(Colours::lightgrey);
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+    }
+}
+
+void ResponseCurveComponent::updateChain()
+{
+    auto chainSettings = getChainSettings(audioProcessor.apvts);
+    auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+
+    auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+
+    auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
+    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
 }
 
 void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float newValue)
@@ -391,7 +423,9 @@ juce::Rectangle<int> ResponseCurveComponent::getAnalysisArea()
     return bounds;
 }
 
-//==============================================================================
+//=============================================================================
+// Editor
+//=============================================================================
 EQtutAudioProcessorEditor::EQtutAudioProcessorEditor(EQtutAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
     
@@ -455,7 +489,6 @@ EQtutAudioProcessorEditor::~EQtutAudioProcessorEditor()
 
 }
 
-//==============================================================================
 void EQtutAudioProcessorEditor::paint(juce::Graphics& g)
 {
     using namespace juce;
