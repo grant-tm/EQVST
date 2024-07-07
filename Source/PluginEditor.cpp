@@ -298,10 +298,10 @@ void ResponseCurveComponent::resized()
 
     // -- mark frequencies on x axis --
     Array<float> gridXLines { 
-        20, 30, 40, 50, 
-        100, 200, 300, 400, 500, 
-        1000, 2000, 3000, 4000, 5000, 
-        10000, 20000 
+        20, 30, 40, 50, 60, 70, 80, 90,
+        100, 200, 300, 400, 500, 600, 700, 800, 900,
+        1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000,
+        10000, 12000, 14000, 16000, 18000, 20000 
     };
 
     Array<float> xs;
@@ -325,6 +325,33 @@ void ResponseCurveComponent::resized()
         g.setColour(y == 0.f ? Colour(0u, 180u, 0u) : Colours::darkgrey);
 
         g.drawHorizontalLine(mapY, left, right);
+    }
+
+    g.setColour(Colours::lightgrey);
+    const int fontHeight = 10;
+    g.setFont(fontHeight);
+
+    for (int i = 0; i < gridXLines.size(); ++i)
+    {
+        auto f = gridXLines[i];
+        auto x = xs[i];
+
+        if (f != 50.f && f != 100.f && f != 500.f && f != 1000.f && f != 5000.f && f != 10000.f)
+        {
+            continue;
+        }
+
+        String str;
+        str << f;
+
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+
+        Rectangle<int> r;
+        r.setSize(textWidth, fontHeight);
+        r.setCentre(x, 0);
+        r.setY(1);
+
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
 }
 
