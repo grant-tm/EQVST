@@ -15,14 +15,14 @@ void LookAndFeel::drawRotarySlider(
 ) {
     using namespace juce;
 
-    auto bounds = Rectangle<float>(x, y, width, height);
+    auto bounds = Rectangle<float>(float(x), float(y), float(width), float(height));
 
     // draw knob background
-    g.setColour(Colour(0xFF181818));
+    g.setColour(Colour(0xFFCCCCCC));
     g.fillEllipse(bounds);
 
     // draw knob border
-    g.setColour(Colour(0xFF202020));
+    g.setColour(Colour(0xFF222222));
     g.drawEllipse(bounds, 2.f);
 
     if (auto* knob = dynamic_cast<Knob*>(&slider))
@@ -33,29 +33,29 @@ void LookAndFeel::drawRotarySlider(
 
         auto center = bounds.getCentre();
         Rectangle<float> r;
-        r.setLeft(center.getX() - 2);
-        r.setRight(center.getX() + 2);
-        r.setTop(bounds.getY());
-        r.setBottom(center.getY() - knob->getTextHeight() * 1.5);
+        r.setLeft   (center.getX() - 2);
+        r.setRight  (center.getX() + 2);
+        r.setTop    (bounds.getY());
+        r.setBottom((center.getY() - bounds.getY()) * 0.3f);
 
         Path p;
         p.addRoundedRectangle(r, 2.f);
         p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
 
-        g.setColour(Colour(0xFFFFFFFF));
+        g.setColour(Colour(0xFF222222));
         g.fillPath(p);
 
         // draw label
-        g.setFont(knob->getTextHeight());
+        g.setFont(float(knob->getTextHeight()));
         auto text = knob->getDisplayString();
         auto strWidth = g.getCurrentFont().getStringWidth(text);
 
-        r.setSize(strWidth + 4, knob->getTextHeight() + 2);
+        r.setSize(float(strWidth + 4), float(knob->getTextHeight() + 2));
         r.setCentre(bounds.getCentre());
-        g.setColour(Colour(0xFF181818));
+        g.setColour(Colour(0xFFCCCCCC));
         g.fillRect(r);
 
-        g.setColour(Colour(0xFFFFFFFF));
+        g.setColour(Colour(0xFF222222));
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     }
 }
@@ -84,7 +84,7 @@ void Knob::paint(juce::Graphics& g)
     getLookAndFeel().drawRotarySlider(
         g,
         sliderBounds.getX(), sliderBounds.getY(), sliderBounds.getWidth(), sliderBounds.getHeight(),
-        jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+        jmap(float(getValue()), float(range.getStart()), float(range.getEnd()), 0.f, 1.f),
         startAng, endAng,
         *this
     );
@@ -95,7 +95,7 @@ void Knob::paint(juce::Graphics& g)
 
     // draw labels
     g.setColour(Colour(0xFFFFFFFF));
-    g.setFont(getTextHeight());
+    g.setFont(float(getTextHeight()));
 
     auto numChoices = labels.size();
     for (int i = 0; i < numChoices; ++i)
@@ -110,7 +110,7 @@ void Knob::paint(juce::Graphics& g)
         
         Rectangle<float> r;
         auto str = labels[i].label;
-        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setSize(float(g.getCurrentFont().getStringWidth(str)), float(getTextHeight()));
         r.setCentre(c);
         r.setY(r.getY() + getTextHeight());
         g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
@@ -144,7 +144,7 @@ juce::String Knob::getDisplayString() const
 
     if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
     {
-        float val = getValue();
+        float val = float(getValue());
         
         if (val >= 1000.f)
         {
@@ -204,7 +204,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 {
     using namespace juce;
 
-    g.fillAll(Colour(0xFF101010));
+    g.fillAll(Colour(0xFF111111));
 
     g.drawImage(background, getLocalBounds().toFloat());
 
@@ -258,26 +258,26 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
             return jmap(input, -24.0, 24.0, outputMin, outputMax);
         };
 
-    responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
+    responseCurve.startNewSubPath(float(responseArea.getX()), float(map(mags.front())));
 
     for (size_t i = 1; i < mags.size(); ++i)
     {
-        responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
+        responseCurve.lineTo(float(responseArea.getX() + i), float(map(mags[i])));
     }
 
     auto leftChannelFFTPath = leftPathProducer.getPath();
-    leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    leftChannelFFTPath.applyTransform(AffineTransform().translation(float(responseArea.getX()), float(responseArea.getY())));
     g.setColour(Colours::red);
-    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.5f));
 
     auto rightChannelFFTPath = rightPathProducer.getPath();
-    rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    rightChannelFFTPath.applyTransform(AffineTransform().translation(float(responseArea.getX()), float(responseArea.getY())));
     g.setColour(Colours::green);
-    g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+    g.strokePath(rightChannelFFTPath, PathStrokeType(1.5f));
     
-    g.setColour(Colour(0xFF181818));
+    g.setColour(Colour(0xFF222222));
     g.drawRoundedRectangle(getRenderArea().toFloat(), 1.0f, 4.f);
-    g.setColour(Colour(0xFFFFFFFF));
+    g.setColour(Colour(0xFFCCCCCC));
     g.strokePath(responseCurve, PathStrokeType(2.f));
 }
 
@@ -310,10 +310,10 @@ void ResponseCurveComponent::resized()
         xs.add(left + width * normX);
     }
 
-    g.setColour(Colours::dimgrey);
+    g.setColour(Colour(0xFFAAAAAA));
     for (auto x : xs)
     {
-        g.drawVerticalLine(x, top, bottom);
+        g.drawVerticalLine(int(x), float(top), float(bottom));
     }
 
     // -- DRAW GAIN GRIDLINES --
@@ -322,13 +322,13 @@ void ResponseCurveComponent::resized()
     for (auto y : gridYLines)
     {
         auto mapY = jmap(y, -24.f, 24.f, float(bottom), float(top));
-        g.setColour(y == 0.f ? Colour(0u, 180u, 0u) : Colours::darkgrey);
-        g.drawHorizontalLine(mapY, left, right);
+        g.setColour(y == 0.f ? Colour(0xFF00CC00) : Colour(0xFF222222));
+        g.drawHorizontalLine(int(mapY), float(left), float(right));
     }
 
     // -- DRAW FREQUENCY LABELS --
 
-    g.setColour(Colours::lightgrey);
+    g.setColour(Colour(0xFFCCCCCC));
     const int fontHeight = 10;
     g.setFont(fontHeight);
 
@@ -349,7 +349,7 @@ void ResponseCurveComponent::resized()
 
         Rectangle<int> r;
         r.setSize(textWidth, fontHeight);
-        r.setCentre(x, 0);
+        r.setCentre(int(x), 0);
         r.setY(1);
 
         g.drawFittedText(str, r, juce::Justification::centred, 1);
@@ -371,9 +371,9 @@ void ResponseCurveComponent::resized()
         Rectangle<int> r;
         r.setSize(textWidth, fontHeight);
         r.setX(getWidth() - textWidth);
-        r.setCentre(r.getCentreX(), mapY);
+        r.setCentre(int(r.getCentreX()), int(mapY));
 
-        g.setColour(mapY == 0.f ? Colour(0u, 180u, 0u) : Colours::lightgrey);
+        g.setColour(mapY == 0.f ? Colour(0xFF00CC00) : Colour(0xFF222222));
         g.drawFittedText(str, r, juce::Justification::centred, 1);
 
         str.clear();
@@ -382,7 +382,7 @@ void ResponseCurveComponent::resized()
         r.setX(1);
         textWidth = g.getCurrentFont().getStringWidth(str);
         r.setSize(textWidth, fontHeight);
-        g.setColour(Colours::lightgrey);
+        g.setColour(Colour(0xFFCCCCCC));
         g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
 }
@@ -440,7 +440,7 @@ void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
         std::vector<float> fftData;
         if (leftChannelFFTDataGenerator.getFFTData(fftData))
         {
-            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
+            pathProducer.generatePath(fftData, fftBounds, fftSize, float(binWidth), -48.f);
         }
     }
 
@@ -553,10 +553,7 @@ EQtutAudioProcessorEditor::~EQtutAudioProcessorEditor()
 void EQtutAudioProcessorEditor::paint(juce::Graphics& g)
 {
     using namespace juce;
-
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-    g.fillAll(Colour(0xFF101010));
+    g.fillAll(Colour(0xFF111111));
     
 }
 
@@ -566,21 +563,21 @@ void EQtutAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     auto bounds = getLocalBounds();
-    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33f);
+    auto responseArea = bounds.removeFromTop(int(bounds.getHeight() * 0.33f));
     responseCurveComponent.setBounds(responseArea);
 
     bounds.removeFromTop(5);
 
-    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
-    lowCutFreqKnob.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
+    auto lowCutArea = bounds.removeFromLeft(int(bounds.getWidth() * 0.33f));
+    lowCutFreqKnob.setBounds(lowCutArea.removeFromTop(int(lowCutArea.getHeight() * 0.5f)));
     lowCutSlopeKnob.setBounds(lowCutArea);
 
-    auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
-    highCutFreqKnob.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
+    auto highCutArea = bounds.removeFromRight(int(bounds.getWidth() * 0.5f));
+    highCutFreqKnob.setBounds(highCutArea.removeFromTop(int(highCutArea.getHeight() * 0.5f)));
     highCutSlopeKnob.setBounds(highCutArea);
     
-    peakFreqKnob.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
-    peakGainKnob.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
+    peakFreqKnob.setBounds(bounds.removeFromTop(int(bounds.getHeight() * 0.33f)));
+    peakGainKnob.setBounds(bounds.removeFromTop(int(bounds.getHeight() * 0.5f)));
     peakQualityKnob.setBounds(bounds);
 }
 
